@@ -5,3 +5,10 @@
     margin: 10px;
     align-items: left;
 }
+
+.chart-container {
+    display: flex;
+    margin: 10px;
+    align-items: right;
+}
+
