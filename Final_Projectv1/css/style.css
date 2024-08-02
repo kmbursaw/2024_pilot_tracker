@@ -1,0 +1,7 @@
+/*Add CSS styles here*/
+
+.map-container {
+    display: flex;
+    margin: 10px;
+    align-items: left;
+}
