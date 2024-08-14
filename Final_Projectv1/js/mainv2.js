@@ -137,6 +137,15 @@ function setMap(){
             .attr("d", path);
 
         createDropdown();
+
+        var exampleData = [
+            { State: "California", value: 50000 },
+            { State: "Texas", value: 30000 },
+            // Add more data as needed
+        ];
+
+
+        setBarChart(exampleData);
         
     }
 
@@ -219,7 +228,15 @@ function createyearDropdown(country){
 
 //compute data for pilots since first date to selected date
 //make chart (d3 Observable code)
-function setBarChart(country){
+function setBarChart(data) {
+
+    /*
+    const data = d3.sort(states, d => d[2019] - d[2010])
+    .map((d) => ({
+      ...d,
+      value: metric === "absolute" ? d[2019] - d[2010] : (d[2019] - d[2010]) / d[2010]
+    }));
+    */
 
     const barHeight = 25;
     const marginTop = 30;
@@ -313,8 +330,174 @@ function setBarChart(country){
 }
 
 //make chart dynamic
+//dropdown change event handler
+function changeAttribute(attribute, pop_Vote) {
+    //change the expressed attribute
+    expressed = attribute;
+
+    // Compute the maximum value in the dataset and cap it (chatGPT generated)
+    var maxValue = d3.max(pop_Vote, function(d) {
+        return +d[expressed];
+    });
+    var padding = maxValue * 0.1;
+    var cappedMaxValue = Math.min(maxValue + padding, 35000000);
+
+    //recreate the color scale
+    var colorScale = makeColorScale(pop_Vote);
+
+    //recolor enumeration units
+    var states = d3.selectAll(".states")
+        .transition()
+        .duration(1000)
+        .style("fill", function(d){            
+            var value = d.properties[expressed];            
+            if(value) {                
+                return colorScale(value);           
+            } else {                
+                return "#ccc";            
+            }   
+    });
+    //Sort, resize, and recolor bars
+    var bars = d3.selectAll(".bar")
+        //Sort bars
+        .sort(function(a, b){
+            return b[expressed] - a[expressed];
+        })
+        .transition() //add animation
+        .delay(function(d, i){
+            return i * 20
+        })
+        .duration(500);
+        
+
+    updateChart(bars, pop_Vote.length, colorScale, cappedMaxValue);
+
+    // Update Y-axis with capped max value (chatGPT generated to end of change Attribute())
+    var newYScale = d3.scaleLinear()
+    .range([chartInnerHeight, 0])
+    .domain([0, cappedMaxValue]);
+
+    var yAxis = d3.axisLeft()
+        .scale(newYScale);
+
+    d3.select(".chart").select(".axis")
+        .transition()
+        .duration(1000)
+        .call(yAxis);
+
+    // Update the Y-axis scale
+    yScale = newYScale;
+
+}; //end of changeAttribute()
+
+
 //make chart scale dynamic
+//function to position, size, and color bars in chart
+function updateChart(bars, n, colorScale, cappedMaxValue){
+
+    // Update Y-axis scale (chatGPT generated)
+    yScale = d3.scaleLinear()
+        .range([chartInnerHeight, 0])
+        .domain([0, cappedMaxValue]);
+
+    //position bars
+    bars.attr("x", function(d, i){
+            return i * (chartInnerWidth / n) + leftPadding;
+        })
+        //Size/resize bars (chatGPT generated)
+        .attr("height", function(d) {
+            return chartInnerHeight - yScale(parseFloat(d[expressed]));
+        })
+        //student original project
+        .attr("y", function(d) {
+            return yScale(parseFloat(d[expressed])) + topBottomPadding;
+        })
+        //color/recolor bars
+        .style("fill", function(d){            
+            var value = d[expressed];            
+            if(value) {                
+                return colorScale(value);            
+            } else {                
+                return "#ccc";            
+            }    
+    });
+    //add text to chart title
+    var chartTitle = d3.select(".chartTitle")
+        .text("Votes by State");
+
+
+
+
+};//end of updateChart
+
+
 //event listeners for state clicks
+
+//function to highlight enumeration units and bars
+function highlight(props){
+    //change stroke
+    var affected = props.state || props.STUSPS;
+    var selected = d3.selectAll("." + affected)
+        .style("stroke", "yellow")
+        .style("stroke-width", "2");
+    setLabel(props);
+
+};
+
+
+
+//function to reset the element style on mouseout
+function dehighlight(props){
+    var affected = props.state || props.STUSPS;
+    var selected = d3.selectAll("." + affected)
+        .style("stroke", function(){
+            return getStyle(this, "stroke")
+        })
+        .style("stroke-width", function(){
+            return getStyle(this, "stroke-width")
+        });
+
+    function getStyle(element, styleName){
+        var styleText = d3.select(element)
+            .select("desc")
+            .text();
+
+        var styleObject = JSON.parse(styleText);
+
+        return styleObject[styleName];
+    };
+    //below Example 2.4 line 21...remove info label
+    d3.select(".infolabel")
+        .remove();
+};
+
+//Example 2.8 line 1...function to move info label with mouse
+function moveLabel(event){
+    //get width of label
+    var labelWidth = d3.select(".infolabel")
+        .node()
+        .getBoundingClientRect()
+        .width;
+
+    //use coordinates of mousemove event to set label coordinates
+    var x1 = event.clientX + 10,
+        y1 = event.clientY - 75,
+        x2 = event.clientX - labelWidth - 10,
+        y2 = event.clientY + 25;
+
+    //horizontal label coordinate, testing for overflow
+    var x = event.clientX > window.innerWidth - labelWidth - 20 ? x2 : x1; 
+    //vertical label coordinate, testing for overflow
+    var y = event.clientY < 75 ? y2 : y1; 
+
+    d3.select(".infolabel")
+        .style("left", x + "px")
+        .style("top", y + "px");
+};
+
+
+
+
 //
 
 
