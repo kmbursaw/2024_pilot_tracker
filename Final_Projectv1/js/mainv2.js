@@ -137,6 +137,7 @@ function setMap(){
             .attr("d", path);
 
         createDropdown();
+        createYearDropdown();
 
         var exampleData = [
             { State: "California", value: 50000 },
@@ -168,18 +169,21 @@ function setMap(){
 };
 
 //function to create a dropdown menu for attribute selection
-function createDropdown(pop_Vote){
+function createDropdown(country){
     //add select element
     var dropdown = d3.select("body")
-        .append("select")
+        .append("select") 
+        .attr("id", "attribute-dropdown")
         .attr("class", "dropdown")
         .attr("x", 0)
         .style("width", "80px")
         .style("height", "30px")
         .on("change", function(){
-            changeAttribute(this.value, pop_Vote)
+            changeAttribute(this.value, country)
         });
     
+    console.log ("Creating attribute dropdown")
+
 
     //add initial option
     var titleOption = dropdown.append("option")
@@ -197,11 +201,12 @@ function createDropdown(pop_Vote){
     };
 
 
-function createyearDropdown(country){
+function createYearDropdown(country){
     //add select element
     var dropdown = d3.select("body")
         .append("select")
-        .attr("class", "dropdown")
+        .attr("id", "year-dropdown")
+        .attr("class", "yearDropdown")
         .attr("x", 0)
         .style("width", "80px")
         .style("height", "30px")
@@ -209,6 +214,7 @@ function createyearDropdown(country){
             changeAttribute(this.value, country)
         });
     
+    console.log("Creating year dropdown")
 
     //add initial option
     var titleOption = dropdown.append("option")
@@ -216,9 +222,12 @@ function createyearDropdown(country){
         .attr("disabled", "true")
         .text("Select");
 
+    var years = ["2018", "2019", "2020", "2021", "2022", "2023"];
+       
+
     //add attribute name options
-    var attrOptions = dropdown.selectAll("attrOptions")
-        .data(attrArray)
+    var yearOptions = dropdown.selectAll("yearOptions")
+        .data(years)
         .enter()
         .append("option")
         .attr("value", function(d){ return d })
@@ -260,11 +269,11 @@ function setBarChart(data) {
 
 
     // Create the positional scales.
-    const x = d3.scaleLinear()
+    const y = d3.scaleLinear()
         .domain(d3.extent(data, d => d.value))
         .rangeRound([marginLeft, chartWidth - marginRight]);
 
-    const y = d3.scaleBand()
+    const x = d3.scaleBand()
         .domain(data.map(d => d.State))
         .rangeRound([marginTop, height - marginBottom])
         .padding(0.1);

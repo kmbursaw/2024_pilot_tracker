@@ -1,10 +1,11 @@
 /*Add CSS styles here*/
 
+/* map */
 .map-container {
     display: flex;
     flex-direction: row;
     margin: 10px;
-    align-items: left;
+    align-items: right;
     z-index: 10;
 }
 
@@ -24,8 +25,15 @@
 }
 
 /*dropdown*/
+.dropdown-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 100px
+}
+
 .dropdown {
-    position: absolute;
+    position: relative;
     top: 250px;
     left: 10px;
     z-index: 10;
@@ -41,6 +49,7 @@ option {
     font-weight: normal;
 }
 
+/* radio buttons */
 #radio-buttons {
     margin: 20px; /* Adjust margin as needed */
 }
@@ -50,7 +59,7 @@ option {
     position: relative;
 }
 
-
+/* title */
 .title-container {
     display: flex;
     flex-direction: row;
