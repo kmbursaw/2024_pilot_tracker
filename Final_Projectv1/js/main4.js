@@ -66,7 +66,7 @@
         translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
     //create a scale to size bars proportionally to frame and for axis
-    var yScale = d3.scaleLinear()
+    var xScale = d3.scaleLinear()
         .range([463, 0])
         .domain([0, 1000000]); 
 
@@ -169,10 +169,16 @@
             .attr("height", chartInnerHeight)
             .attr("transform", translate);
         
-        //set yScale for chart (chatGPT generated)
-        var yScale = d3.scaleLinear()
-            .range([chartInnerHeight, 0])
+        //set xScale for chart (chatGPT generated)
+        var xScale = d3.scaleLinear()
+            .range([[0, chartWidth - leftPadding - rightPadding]])
             .domain([0, cappedMaxValue]);
+
+        //chatGPT generated variable
+        var yScale = d3.scaleBand()
+            .range([chartHeight - topBottomPadding, 0])
+            .domain(pilots.map(function(d) { return d.State; }))
+            .padding(0.1); // Adjust padding for space between bars
 
         //set bars for each state
         var bars = chart.selectAll(".bar")
@@ -198,11 +204,11 @@
             })
             //chatGPT generated
             .attr("height", function(d) {
-                return chartInnerHeight - yScale(parseFloat(d[expressed]));
+                return chartInnerHeight - xScale(parseFloat(d[expressed]));
             })
             //student original project
             .attr("y", function(d, i){
-                return yScale(parseFloat(d[expressed])) + topBottomPadding;
+                return xScale(parseFloat(d[expressed])) + topBottomPadding;
             })
             .style("fill", function(d){
                 return colorScale(d[expressed]);
@@ -220,14 +226,23 @@
             .attr("fill", "white")
             .text("Active Pilots by State");
 
-        //create vertical axis generator
-        var yAxis = d3.axisLeft()
-            .scale(yScale);
+        //create horizontal axis generator
+        var xAxis = d3.axisBottom()
+            .scale(xScale);
 
         //place axis
         var axis = chart.append("g")
-            .attr("class", "axis")
-            .attr("transform", translate)
+            .attr("class", "xaxis")
+            .attr("transform", "translate(" + leftPadding + "," + (chartInnerHeight + topBottomPadding) + ")")
+            .call(xAxis);
+
+        //create vertical axis generator
+        var yAxis = d3.axisLeft(yScale);
+
+        //place the y-axis
+        chart.append("g")
+            .attr("class", "yAxis")
+            .attr("transform", "translate(" + leftPadding + "," + topBottomPadding + ")")
             .call(yAxis);
 
         //create frame for chart border
@@ -413,20 +428,20 @@
         updateChart(bars, pilots.length, colorScale, cappedMaxValue);
     
         // Update Y-axis with capped max value (chatGPT generated to end of change Attribute())
-        var newYScale = d3.scaleLinear()
+        var newXScale = d3.scaleLinear()
         .range([chartInnerHeight, 0])
         .domain([0, cappedMaxValue]);
 
-        var yAxis = d3.axisLeft()
-            .scale(newYScale);
+        var xAxis = d3.axisBottom()
+            .scale(newXScale);
 
         d3.select(".chart").select(".axis")
             .transition()
             .duration(1000)
-            .call(yAxis);
+            .call(xAxis);
 
         // Update the Y-axis scale
-        yScale = newYScale;
+        xScale = newXScale;
 
     }; //end of changeAttribute()
 
@@ -435,7 +450,7 @@
     function updateChart(bars, n, colorScale, cappedMaxValue){
 
         // Update Y-axis scale (chatGPT generated)
-        yScale = d3.scaleLinear()
+        xScale = d3.scaleLinear()
             .range([chartInnerHeight, 0])
             .domain([0, cappedMaxValue]);
 
@@ -445,11 +460,11 @@
             })
             //Size/resize bars (chatGPT generated)
             .attr("height", function(d) {
-                return chartInnerHeight - yScale(parseFloat(d[expressed]));
+                return chartInnerHeight - xScale(parseFloat(d[expressed]));
             })
             //student original project
             .attr("y", function(d) {
-                return yScale(parseFloat(d[expressed])) + topBottomPadding;
+                return xScale(parseFloat(d[expressed])) + topBottomPadding;
             })
             //color/recolor bars
             .style("fill", function(d){            

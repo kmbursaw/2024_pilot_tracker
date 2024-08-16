@@ -48,7 +48,7 @@
 /*dropdown*/
 .dropdown {
     position: absolute;
-    top: 150px;
+    top: 100px;
     left: 40px;
     font-family: sans-serif;
     font-size: 1em;
@@ -101,18 +101,23 @@ option {
     color: whitesmoke;
 }
 
-.first {
-    margin-bottom: 20px;
+.text second {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 7px;
+    color:whitesmoke
 }
 
-.second, .third, .fourth, .fifth, .sixth, .seventh {
-    margin-top: 10px; 
-    margin-bottom: 20px; 
-}
 
-.title-container {
+.title-container h1 {
     font-size: 40px;
     font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    color: whitesmoke;
+}
+
+.title-container h2 {
+    font-size: 18px;
+    font-family:Arial, Helvetica, sans-serif;
     text-align: center;
     color: whitesmoke;
 }
