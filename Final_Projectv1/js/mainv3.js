@@ -153,7 +153,7 @@
             return +d[expressed];
         });
         var padding = maxValue * 0.1;
-        var cappedMaxValue = Math.min(maxValue + padding, 35000000);
+        var cappedMaxValue = Math.min(maxValue + padding,1000000);
 
         //create a second svg element to hold the bar chart
         var chart = d3.select(".chart-container")
@@ -183,7 +183,7 @@
                 return b[expressed]-a[expressed]
             })
             .attr("class", function(d){
-                return "bar " + d.state;
+                return "bar " + d.pilots;
             })
             .attr("width", chartInnerWidth / pilots.length - 1)
             .on("mouseover", function(event, d){
@@ -223,7 +223,7 @@
             .attr("y", 40)
             .attr("class", "chartTitle")
             .attr("fill", "white")
-            .text("Votes by State");
+            .text("Active Pilots by State");
 
         //create vertical axis generator
         var yAxis = d3.axisLeft()
@@ -312,11 +312,13 @@
     //function to create color scale generator
     function makeColorScale(data){
         var colorClasses = [
-            "#edf8fb",
-            "#b3cde3",
-            "#8c96c6",
-            "#8856a7",
-            "#810f7c"
+            "#ffffb2",
+            "#fed976",
+            "#feb24c",
+            "#fd8d3c",
+            "#fc4e2a",
+            "#e31a1c",
+            "#b10026",
         ];
 
         //create color scale generator
@@ -331,7 +333,7 @@
         };
 
         //cluster data using ckmeans clustering algorithm to create natural breaks
-        var clusters = ss.ckmeans(domainArray, 5);
+        var clusters = ss.ckmeans(domainArray, 7);
         //reset domain array to cluster minimums
         domainArray = clusters.map(function(d){
             return d3.min(d);
@@ -383,7 +385,7 @@
             return +d[expressed];
         });
         var padding = maxValue * 0.1;
-        var cappedMaxValue = Math.min(maxValue + padding, 35000000);
+        var cappedMaxValue = Math.min(maxValue + padding, 1000000);
 
         //recreate the color scale
         var colorScale = makeColorScale(pilots);
@@ -478,7 +480,7 @@
         //change stroke
         var affected = props.state || props.STUSPS;
         var selected = d3.selectAll("." + affected)
-            .style("stroke", "yellow")
+            .style("stroke", "blue")
             .style("stroke-width", "2");
         setLabel(props);
 
@@ -522,7 +524,7 @@
         var infolabel = d3.select("body")
             .append("div")
             .attr("class", "infolabel")
-            .attr("id", props.state + "_label")
+            .attr("id", props.pilots + "_label")
             .html(labelAttribute);
 
         var stateName = infolabel.append("div")
@@ -556,6 +558,78 @@
             .style("top", y + "px");
     };
 
+
+    /*
+    //function for bubble chart
+    function bubbles(pilots) {
+
+        //create a second svg element to hold the bar chart
+        var chart = d3.select(".bubble-container")
+            .append("svg")
+            .attr("width", chartWidth)
+            .attr("height", chartHeight)
+            .attr("viewBox", [-margin, -margin, width, height])
+            .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;")
+            .attr("text-anchor", "middle")
+            .attr("class", "chart");
+
+        //create a rectangle for chart background fill
+        var chartBackground = chart.append("rect")
+            .attr("class", "chartBackground")
+            .attr("width", chartInnerWidth)
+            .attr("height", chartInnerHeight)
+            .attr("transform", translate);
+
+
+        // Specify the number format for values.
+        const format = d3.format(",d");
+
+        // Create the pack layout.
+        const pack = d3.pack()
+            .size([width - margin * 2, height - margin * 2])
+            .padding(3);
+
+        //Compute the hierarchy from the (flat) data; expose the values
+        //for each node; lastly apply the pack layout.
+        const root = pack(d3.hierarchy({children: data})
+            .sum(d => d.value));
+
+
+        // Place each (leaf) node according to the layout’s x and y values.
+        const node = svg.append("g")
+            .selectAll()
+            .data(root.leaves())
+            .join("g")
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+
+        // Add a filled circle.
+        node.append("circle")
+            .attr("fill-opacity", 0.7)
+            .attr("fill", d => color(group(d.data)))
+            .attr("r", d => d.r);
+
+        // Add a label.
+        const text = node.append("text")
+            .attr("clip-path", d => `circle(${d.r})`);
+
+        // Add a tspan for each CamelCase-separated word.
+        text.selectAll()
+            .data(d => names(d.data))
+            .join("tspan")
+            .attr("x", 0)
+            .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.35}em`)
+            .text(d => d);
+
+        // Add a tspan for the node’s value.
+        text.append("tspan")
+            .attr("x", 0)
+            .attr("y", d => `${names(d.data).length / 2 + 0.35}em`)
+            .attr("fill-opacity", 0.7)
+            .text(d => format(d.value));
+
+        return Object.assign(svg.node(), {scales: {color}});
+    };
+        */
 
 
 })(); //last line
