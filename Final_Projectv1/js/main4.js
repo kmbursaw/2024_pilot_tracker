@@ -66,7 +66,7 @@
         translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
     //create a scale to size bars proportionally to frame and for axis
-    var xScale = d3.scaleLinear()
+    var yScale = d3.scaleLinear()
         .range([463, 0])
         .domain([0, 1000000]); 
 
@@ -135,128 +135,18 @@
             setEnumerationUnits(joined_statesFeatures, map, path, colorScale);
 
             //add coordinated visualization to the map
-            setChart(pilots, colorScale);
+
 
             //adds dropdown
             createDropdown(pilots);
+
+            //bubblechart
+            bubbleChart(pilots);
            
         };
     }; //end of setMap()
         
 
-
-    //function to create coordinated bar chart
-    function setChart(pilots, colorScale){
-
-        // Compute the maximum value in the dataset and cap it (chatGPT generated)
-        var maxValue = d3.max(pilots, function(d) {
-            return +d[expressed];
-        });
-        var padding = maxValue * 0.1;
-        var cappedMaxValue = Math.min(maxValue + padding,1000000);
-
-        //create a second svg element to hold the bar chart
-        var chart = d3.select(".chart-container")
-            .append("svg")
-            .attr("width", chartWidth)
-            .attr("height", chartHeight)
-            .attr("class", "chart");
-
-        //create a rectangle for chart background fill
-        var chartBackground = chart.append("rect")
-            .attr("class", "chartBackground")
-            .attr("width", chartInnerWidth)
-            .attr("height", chartInnerHeight)
-            .attr("transform", translate);
-        
-        //set xScale for chart (chatGPT generated)
-        var xScale = d3.scaleLinear()
-            .range([[0, chartWidth - leftPadding - rightPadding]])
-            .domain([0, cappedMaxValue]);
-
-        //chatGPT generated variable
-        var yScale = d3.scaleBand()
-            .range([chartHeight - topBottomPadding, 0])
-            .domain(pilots.map(function(d) { return d.State; }))
-            .padding(0.1); // Adjust padding for space between bars
-
-        //set bars for each state
-        var bars = chart.selectAll(".bar")
-            .data(pilots)
-            .enter()
-            .append("rect")
-            .sort(function(a, b){
-                return b[expressed]-a[expressed]
-            })
-            .attr("class", function(d){
-                return "bar " + d.pilots;
-            })
-            .attr("width", chartInnerWidth / pilots.length - 1)
-            .on("mouseover", function(event, d){
-                highlight(d);
-            }) 
-            .on("mouseout", function(event, d){
-                dehighlight(d);
-            })
-            .on("mousemove", moveLabel)
-            .attr("x", function(d, i){
-                return i * (chartInnerWidth / pilots.length) + leftPadding;
-            })
-            //chatGPT generated
-            .attr("height", function(d) {
-                return chartInnerHeight - xScale(parseFloat(d[expressed]));
-            })
-            //student original project
-            .attr("y", function(d, i){
-                return xScale(parseFloat(d[expressed])) + topBottomPadding;
-            })
-            .style("fill", function(d){
-                return colorScale(d[expressed]);
-            });
-
-        //add style descriptor to each rect
-        var desc = bars.append("desc")
-            .text('{"stroke": "none", "stroke-width": "0px"}')
-
-        //create a text element for the chart title
-        var chartTitle = chart.append("text")
-            .attr("x", 75)
-            .attr("y", 40)
-            .attr("class", "chartTitle")
-            .attr("fill", "white")
-            .text("Active Pilots by State");
-
-        //create horizontal axis generator
-        var xAxis = d3.axisBottom()
-            .scale(xScale);
-
-        //place axis
-        var axis = chart.append("g")
-            .attr("class", "xaxis")
-            .attr("transform", "translate(" + leftPadding + "," + (chartInnerHeight + topBottomPadding) + ")")
-            .call(xAxis);
-
-        //create vertical axis generator
-        var yAxis = d3.axisLeft(yScale);
-
-        //place the y-axis
-        chart.append("g")
-            .attr("class", "yAxis")
-            .attr("transform", "translate(" + leftPadding + "," + topBottomPadding + ")")
-            .call(yAxis);
-
-        //create frame for chart border
-        var chartFrame = chart.append("rect")
-            .attr("class", "chartFrame")
-            .attr("width", chartInnerWidth)
-            .attr("height", chartInnerHeight)
-            .attr("transform", translate);
-
-        //set bar positions, heights, and colors
-        updateChart(bars, pilots.length, colorScale, cappedMaxValue);
-    };
-        
-   
     
 
     // Joins the pilots CSV and the US_States_04 TopoJSON
@@ -318,7 +208,6 @@
             .text('{"stroke": "#000", "stroke-width": "0.5px"}');
     }
 
-
     //function to create color scale generator
     function makeColorScale(data){
         var colorClasses = [
@@ -367,7 +256,6 @@
                 changeAttribute(this.value, pilots)
             });
         
-
         //add initial option
         var titleOption = dropdown.append("option")
             .attr("class", "titleOption")
@@ -383,7 +271,6 @@
             .text(function(d){ return d })
             .text(function(d){ return attrFriendlyNames[d] });
         };
-
 
     //dropdown change event handler
     function changeAttribute(attribute, pilots) {
@@ -427,63 +314,11 @@
 
         updateChart(bars, pilots.length, colorScale, cappedMaxValue);
     
-        // Update Y-axis with capped max value (chatGPT generated to end of change Attribute())
-        var newXScale = d3.scaleLinear()
-        .range([chartInnerHeight, 0])
-        .domain([0, cappedMaxValue]);
 
-        var xAxis = d3.axisBottom()
-            .scale(newXScale);
-
-        d3.select(".chart").select(".axis")
-            .transition()
-            .duration(1000)
-            .call(xAxis);
-
-        // Update the Y-axis scale
-        xScale = newXScale;
 
     }; //end of changeAttribute()
 
-
-    //function to position, size, and color bars in chart
-    function updateChart(bars, n, colorScale, cappedMaxValue){
-
-        // Update Y-axis scale (chatGPT generated)
-        xScale = d3.scaleLinear()
-            .range([chartInnerHeight, 0])
-            .domain([0, cappedMaxValue]);
-
-        //position bars
-        bars.attr("x", function(d, i){
-                return i * (chartInnerWidth / n) + leftPadding;
-            })
-            //Size/resize bars (chatGPT generated)
-            .attr("height", function(d) {
-                return chartInnerHeight - xScale(parseFloat(d[expressed]));
-            })
-            //student original project
-            .attr("y", function(d) {
-                return xScale(parseFloat(d[expressed])) + topBottomPadding;
-            })
-            //color/recolor bars
-            .style("fill", function(d){            
-                var value = d[expressed];            
-                if(value) {                
-                    return colorScale(value);            
-                } else {                
-                    return "#ccc";            
-                }    
-        });
-        //add text to chart title
-        var chartTitle = d3.select(".chartTitle")
-            .text("Active Pilots by State");
-
-
-
-
-    };//end of updateChart
-
+   
 
     //function to highlight enumeration units and bars
     function highlight(props){
@@ -495,8 +330,6 @@
         setLabel(props);
 
     };
-
-
 
     //function to reset the element style on mouseout
     function dehighlight(props){
@@ -523,7 +356,6 @@
             .remove();
     };
 
-
     //function to create dynamic label
     function setLabel(props){
         //label content
@@ -542,7 +374,6 @@
             .html(props.name)
             .html(props.state)
     };
-
 
     //Example 2.8 line 1...function to move info label with mouse
     function moveLabel(event){
@@ -568,78 +399,61 @@
             .style("top", y + "px");
     };
 
+    function bubbleChart(pilots) {
 
-    /*
-    //function for bubble chart
-    function bubbles(pilots) {
-
-        //create a second svg element to hold the bar chart
-        var chart = d3.select(".bubble-container")
+        // set the dimensions and margins of the graph
+        var margin = {top: 10, right: 20, bottom: 30, left: 50},
+            width = 500,
+            height = 500;   
+        
+        // append the svg object to the body of the page
+        var svg = d3.select("bubble-container")
             .append("svg")
-            .attr("width", chartWidth)
-            .attr("height", chartHeight)
-            .attr("viewBox", [-margin, -margin, width, height])
-            .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;")
-            .attr("text-anchor", "middle")
-            .attr("class", "chart");
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform",
+                    "translate(" + leftPadding + "," + topBottomPadding + ")");
 
-        //create a rectangle for chart background fill
-        var chartBackground = chart.append("rect")
-            .attr("class", "chartBackground")
-            .attr("width", chartInnerWidth)
-            .attr("height", chartInnerHeight)
-            .attr("transform", translate);
+         // Add X axis
+        var xScale = d3.scaleBand()
+            .domain([pilots.map(d => d.STUSPS)])
+            .range([ 0, chartInnerWidth ])
+            .padding(0.1);
+
+        svg.append("g")
+            .attr("transform", "translate(0," + chartHeight + ")")
+            .call(d3.axisBottom(x));
+
+        // Add Y axis
+        var y = d3.scaleLinear()
+            .domain([35, 90])
+            .range([ height, 0]);
+            
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        // Add a scale for bubble size
+        var z = d3.scaleLinear()
+            .domain([200000, 1310000000])
+            .range([ 1, 40]);        
+
+        // Add dots
+        svg.append('g')
+            .selectAll("dot")
+            .data(pilots)
+            .enter()
+            .append("circle")
+                .attr("cx", function (d) { return x(d.State); } )
+                .attr("cy", function (d) { return y(d.Total_2023_Pilots); } )
+                .attr("r", function (d) { return z(d.Total_2023_Pilots); } )
+                .style("fill", "#69b3a2")
+                .style("opacity", "0.7")
+                .attr("stroke", "black")
 
 
-        // Specify the number format for values.
-        const format = d3.format(",d");
+    }
 
-        // Create the pack layout.
-        const pack = d3.pack()
-            .size([width - margin * 2, height - margin * 2])
-            .padding(3);
-
-        //Compute the hierarchy from the (flat) data; expose the values
-        //for each node; lastly apply the pack layout.
-        const root = pack(d3.hierarchy({children: data})
-            .sum(d => d.value));
-
-
-        // Place each (leaf) node according to the layout’s x and y values.
-        const node = svg.append("g")
-            .selectAll()
-            .data(root.leaves())
-            .join("g")
-                .attr("transform", d => `translate(${d.x},${d.y})`);
-
-        // Add a filled circle.
-        node.append("circle")
-            .attr("fill-opacity", 0.7)
-            .attr("fill", d => color(group(d.data)))
-            .attr("r", d => d.r);
-
-        // Add a label.
-        const text = node.append("text")
-            .attr("clip-path", d => `circle(${d.r})`);
-
-        // Add a tspan for each CamelCase-separated word.
-        text.selectAll()
-            .data(d => names(d.data))
-            .join("tspan")
-            .attr("x", 0)
-            .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.35}em`)
-            .text(d => d);
-
-        // Add a tspan for the node’s value.
-        text.append("tspan")
-            .attr("x", 0)
-            .attr("y", d => `${names(d.data).length / 2 + 0.35}em`)
-            .attr("fill-opacity", 0.7)
-            .text(d => format(d.value));
-
-        return Object.assign(svg.node(), {scales: {color}});
-    };
-        */
 
 
 })(); //last line
