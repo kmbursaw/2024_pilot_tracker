@@ -102,7 +102,7 @@
         
         //use Promise.all to parallelize asynchronous data loading
         var promises = [];    
-            promises.push(d3.csv("data/pilots_by_statev2.csv")); //load attributes from csv    
+            promises.push(d3.csv("data/pilots_by_statev4.csv")); //load attributes from csv    
             promises.push(d3.csv("data/country_v3.csv")); //load background spatial data    
             promises.push(d3.json("data/US_States_04.topojson")); //load choropleth spatial data    
 
@@ -141,7 +141,7 @@
             createDropdown(pilots);
 
             //bubblechart
-            bubbleChart(pilots);
+            bubbleChart(pilots, colorScale);
            
         };
     }; //end of setMap()
@@ -313,6 +313,22 @@
             
 
         updateChart(bars, pilots.length, colorScale, cappedMaxValue);
+
+        // Recolor the map based on the new attribute
+        d3.selectAll(".states")
+            .transition()
+            .duration(1000)
+            .style("fill", function(d){
+                var value = d.properties[expressed];
+                if (value) {
+                    return colorScale(value);
+                } else {
+                    return "#ccc";
+                }
+            });
+
+        // Update the bubble chart with the new attribute
+        updateBubbleChart(pilots);
     
 
 
@@ -399,60 +415,87 @@
             .style("top", y + "px");
     };
 
-    function bubbleChart(pilots) {
 
-        // set the dimensions and margins of the graph
-        var margin = {top: 10, right: 20, bottom: 30, left: 50},
-            width = 500,
-            height = 500;   
-        
-        // append the svg object to the body of the page
-        var svg = d3.select("bubble-container")
+
+
+    function bubbleChart(pilots, colorScale) {
+        // Set the dimensions and margins of the graph
+        var chartWidth = 800;
+        var chartHeight = 600;
+    
+        // Append the svg object to the bubble-container class
+        var svg = d3.select(".bubble-container")
             .append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .append("g")
-            .attr("transform",
-                    "translate(" + leftPadding + "," + topBottomPadding + ")");
-
-         // Add X axis
-        var xScale = d3.scaleBand()
-            .domain([pilots.map(d => d.STUSPS)])
-            .range([ 0, chartInnerWidth ])
-            .padding(0.1);
-
-        svg.append("g")
-            .attr("transform", "translate(0," + chartHeight + ")")
-            .call(d3.axisBottom(x));
-
-        // Add Y axis
-        var y = d3.scaleLinear()
-            .domain([35, 90])
-            .range([ height, 0]);
-            
-        svg.append("g")
-            .call(d3.axisLeft(y));
-
-        // Add a scale for bubble size
-        var z = d3.scaleLinear()
-            .domain([200000, 1310000000])
-            .range([ 1, 40]);        
-
-        // Add dots
-        svg.append('g')
-            .selectAll("dot")
-            .data(pilots)
-            .enter()
-            .append("circle")
-                .attr("cx", function (d) { return x(d.State); } )
-                .attr("cy", function (d) { return y(d.Total_2023_Pilots); } )
-                .attr("r", function (d) { return z(d.Total_2023_Pilots); } )
-                .style("fill", "#69b3a2")
-                .style("opacity", "0.7")
-                .attr("stroke", "black")
-
-
+            .attr("width", chartWidth)
+            .attr("height", chartHeight);
+    
+        // Bubble packing layout
+        var bubble = d3.pack()
+            .size([chartWidth, chartHeight])
+            .padding(1.5);
+    
+        // Prepare the root hierarchy
+        var root = d3.hierarchy({ children: pilots })
+            .sum(function(d) { return +d[expressed]; });  // Use the expressed attribute for value calculation
+    
+        // Compute the positions of the bubbles
+        bubble(root);
+    
+        // Create nodes
+        var node = svg.selectAll(".node")
+            .data(root.leaves())
+            .enter().append("g")
+            .attr("class", "node")
+            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    
+        // Append circles to nodes
+        node.append("circle")
+            .attr("r", function(d) { return d.r; })
+            .style("fill", function(d) { return colorScale(d.data[expressed]); });
+    
+        // Append text labels inside the bubbles
+        node.append("text")
+            .attr("dy", ".3em")
+            .style("text-anchor", "middle")
+            .style("font-size", function(d) {
+                return Math.max(8, d.r / 3) + "px";  // Scale font size with radius, set a minimum size
+            })
+            .text(function(d) { 
+                return d.data.STUSPS ? d.data.STUSPS : '';  // Accessing the data safely
+            });
+    
+        // Function to update the bubble chart when the attribute changes
+        function updateBubbleChart() {
+            // Update the hierarchy with new values
+            root.sum(function(d) { return +d[expressed]; });
+    
+            // Recompute the bubble layout
+            bubble(root);
+    
+            // Update the nodes
+            var nodes = svg.selectAll(".node")
+                .data(root.leaves());
+    
+            // Transition to new positions and sizes
+            nodes.transition().duration(1000)
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    
+            nodes.select("circle")
+                .transition().duration(1000)
+                .attr("r", function(d) { return d.r; })
+                .style("fill", function(d) { return colorScale(d.data[expressed]); });
+    
+            nodes.select("text")
+                .text(function(d) { return d.data.STUSPS ? d.data.STUSPS : ''; });
+        }
+    
+        // Update the bubble chart whenever an attribute is changed
+        d3.select("#attributeDropdown").on("change", function() {
+            expressed = d3.select(this).property("value");  // Update the expressed attribute
+            updateBubbleChart();  // Call the update function
+        });
     }
+
 
 
 
