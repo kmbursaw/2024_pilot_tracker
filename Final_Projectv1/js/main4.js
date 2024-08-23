@@ -8,52 +8,54 @@
                 "Total_2020_Pilots", "Total_2020_Student_Pilot_Cert", "Total_2020_Private_Pilot_Cert", "Total_2020_Commercial_Pilot_Cert", "Total_2020_Airline_Transport_Pilot_Cert", "Total_2020_Flight_Instructor_Cert", "2020_Male_Pilots", "2020_Male_Student_Pilot_Cert", "2020_Male_Private_Pilot_Cert", "2020_Male_Commercial_Pilot_Cert", "2020_Male_Airline_Transport_Pilot_Cert", "2020_Male_Flight_Instructor_Cert", "2020_Women_Total_Pilots", "2020_Women_Student_Pilot", "2020_Women_Private_Pilot", "2020_Women_Commercial_Pilot", "2020_Women_Airline_Transport_Pilot", "2020_Women_Flight_Instructor", 
                 "Total_2019_Pilots", "Total_2019_Student_Pilot_Cert", "Total_2019_Private_Pilot_Cert", "Total_2019_Commercial_Pilot_Cert", "Total_2019_Airline_Transport_Pilot_Cert", "Total_2019_Flight_Instructor_Cert", "2019_Male_Pilots", "2019_Male_Student_Pilot_Cert", "2019_Male_Private_Pilot_Cert", "2019_Male_Commercial_Pilot_Cert", "2019_Male_Airline_Transport_Pilot_Cert", "2019_Male_Flight_Instructor_Cert", "2019_Women_Total_Pilots", "2019_Women_Student_Pilot", "2019_Women_Private_Pilot", "2019_Women_Commercial_Pilot", "2019_Women_Airline_Transport_Pilot", "2019_Women_Flight_Instructor", 
                 "Total_2018_Pilots", "Total_2018_Student_Pilot_Cert", "Total_2018_Private_Pilot_Cert", "Total_2018_Commercial_Pilot_Cert", "Total_2018_Airline_Transport_Pilot_Cert", "Total_2018_Flight_Instructor_Cert", "2018_Male_Pilots", "2018_Male_Student_Pilot_Cert", "2018_Male_Private_Pilot_Cert", "2018_Male_Commercial_Pilot_Cert", "2018_Male_Airline_Transport_Pilot_Cert", "2018_Male_Flight_Instructor_Cert", "2018_Women_Total_Pilots", "2018_Women_Student_Pilot", "2018_Women_Private_Pilot", "2018_Women_Commercial_Pilot", "2018_Women_Airline_Transport_Pilot", "2018_Women_Flight_Instructor",]; //list of attributes
+
     var expressed = attrArray[0]; //initial attribute
 
+    var svg, bubble, root;//global variables for bubble chart
 
+    //attribute friendly names for users to choose from in dropdown
     var attrFriendlyNames = { "Total_2023_Pilots": "2023 Total Pilots", "Total_2023_Student_Pilot_Cert": "2023 Student Pilots", 
     "Total_2023_Private_Pilot_Cert": "2023 Private Pilots", "Total_2023_Commercial_Pilot_Cert": "2023 Commercial Pilots", 
     "Total_2023_Airline_Transport_Pilot_Cert": "2023 Airline Transport Pilots", "Total_2023_Flight_Instructor_Cert": "2023 Flight Instructors",
     "2023_Male_Pilots": "2023 Male Pilots", "2023_Male_Student_Pilot_Cert": "2023 Male Student Pilots", "2023_Male_Private_Pilot_Cert": "2023 Male Private Pilots", "2023_Male_Commercial_Pilot_Cert": "2023 Male Commercial Pilots", 
-    "2023_Male_Airline_Transport_Pilots": "2023 Male Airline Transport Pilots", "2023_Male_Flight_Instructors": "2023 Male Flight Instructors", "2023_Women_Total_Pilots": "2023 Women Pilots", "2023_Women_Student_Pilot": "2023 Women Student Pilots",
+    "2023_Male_Airline_Transport_Pilot_Cert": "2023 Male Airline Transport Pilots", "2023_Male_Flight_Instructor_Cert": "2023 Male Flight Instructors", "2023_Women_Total_Pilots": "2023 Women Pilots", "2023_Women_Student_Pilot": "2023 Women Student Pilots",
     "2023_Women_Private_Pilot": "2023 Women Private Pilots", "2023_Women_Commercial_Pilot": "2023 Women Commercial Pilots", "2023_Women_Airline_Transport_Pilot": "2023 Women Airline Transport Pilots", "2023_Women_Flight_Instructor": "2023 Women Flight Instructors",
     
     "Total_2022_Pilots": "2022 Total Pilots", "Total_2022_Student_Pilot_Cert": "2022 Student Pilots", 
     "Total_2022_Private_Pilot_Cert": "2022 Private Pilots", "Total_2022_Commercial_Pilot_Cert": "2022 Commercial Pilots", 
     "Total_2022_Airline_Transport_Pilot_Cert": "2022 Airline Transport Pilots", "Total_2022_Flight_Instructor_Cert": "2022 Flight Instructors",
     "2022_Male_Pilots": "2022 Male Pilots", "2022_Male_Student_Pilot_Cert": "2022 Male Student Pilots", "2022_Male_Private_Pilot_Cert": "2022 Male Private Pilots", "2022_Male_Commercial_Pilot_Cert": "2022 Male Commercial Pilots", 
-    "2022_Male_Airline_Transport_Pilots": "2022 Male Airline Transport Pilots", "2022_Male_Flight_Instructors": "2022 Male Flight Instructors", "2022_Women_Total_Pilots": "2022 Women Pilots", "2022_Women_Student_Pilot": "2022 Women Student Pilots",
+    "2022_Male_Airline_Transport_Pilot_Cert": "2022 Male Airline Transport Pilots", "2022_Male_Flight_Instructor_Cert": "2022 Male Flight Instructors", "2022_Women_Total_Pilots": "2022 Women Pilots", "2022_Women_Student_Pilot": "2022 Women Student Pilots",
     "2022_Women_Private_Pilot": "2022 Women Private Pilots", "2022_Women_Commercial_Pilot": "2022 Women Commercial Pilots", "2022_Women_Airline_Transport_Pilot": "2022 Women Airline Transport Pilots", "2022_Women_Flight_Instructor": "2022 Women Flight Instructors",
 
     "Total_2021_Pilots": "2021 Total Pilots", "Total_2021_Student_Pilot_Cert": "2021 Student Pilots", 
     "Total_2021_Private_Pilot_Cert": "2021 Private Pilots", "Total_2021_Commercial_Pilot_Cert": "2021 Commercial Pilots", 
     "Total_2021_Airline_Transport_Pilot_Cert": "2021 Airline Transport Pilots", "Total_2021_Flight_Instructor_Cert": "2021 Flight Instructors",
     "2021_Male_Pilots": "2021 Male Pilots", "2021_Male_Student_Pilot_Cert": "2021 Male Student Pilots", "2021_Male_Private_Pilot_Cert": "2021 Male Private Pilots", "2021_Male_Commercial_Pilot_Cert": "2021 Male Commercial Pilots", 
-    "2021_Male_Airline_Transport_Pilots": "2021 Male Airline Transport Pilots", "2021_Male_Flight_Instructors": "2021 Male Flight Instructors", "2021_Women_Total_Pilots": "2021 Women Pilots", "2021_Women_Student_Pilot": "2021 Women Student Pilots",
+    "2021_Male_Airline_Transport_Pilot_Cert": "2021 Male Airline Transport Pilots", "2021_Male_Flight_Instructor_Cert": "2021 Male Flight Instructors", "2021_Women_Total_Pilots": "2021 Women Pilots", "2021_Women_Student_Pilot": "2021 Women Student Pilots",
     "2021_Women_Private_Pilot": "2021 Women Private Pilots", "2021_Women_Commercial_Pilot": "2021 Women Commercial Pilots", "2021_Women_Airline_Transport_Pilot": "2021 Women Airline Transport Pilots", "2021_Women_Flight_Instructor": "2021 Women Flight Instructors",
 
     "Total_2020_Pilots": "2020 Total Pilots", "Total_2020_Student_Pilot_Cert": "2020 Student Pilots", 
     "Total_2020_Private_Pilot_Cert": "2020 Private Pilots", "Total_2020_Commercial_Pilot_Cert": "2020 Commercial Pilots", 
     "Total_2020_Airline_Transport_Pilot_Cert": "2020 Airline Transport Pilots", "Total_2020_Flight_Instructor_Cert": "2020 Flight Instructors",
     "2020_Male_Pilots": "2020 Male Pilots", "2020_Male_Student_Pilot_Cert": "2020 Male Student Pilots", "2020_Male_Private_Pilot_Cert": "2020 Male Private Pilots", "2020_Male_Commercial_Pilot_Cert": "2020 Male Commercial Pilots", 
-    "2020_Male_Airline_Transport_Pilots": "2020 Male Airline Transport Pilots", "2020_Male_Flight_Instructors": "2020 Male Flight Instructors", "2020_Women_Total_Pilots": "2020 Women Pilots", "2020_Women_Student_Pilot": "2020 Women Student Pilots",
+    "2020_Male_Airline_Transport_Pilot_Cert": "2020 Male Airline Transport Pilots", "2020_Male_Flight_Instructor_Cert": "2020 Male Flight Instructors", "2020_Women_Total_Pilots": "2020 Women Pilots", "2020_Women_Student_Pilot": "2020 Women Student Pilots",
     "2020_Women_Private_Pilot": "2020 Women Private Pilots", "2020_Women_Commercial_Pilot": "2020 Women Commercial Pilots", "2020_Women_Airline_Transport_Pilot": "2020 Women Airline Transport Pilots", "2020_Women_Flight_Instructor": "2020 Women Flight Instructors",
 
     "Total_2019_Pilots": "2019 Total Pilots", "Total_2019_Student_Pilot_Cert": "2019 Student Pilots", 
     "Total_2019_Private_Pilot_Cert": "2019 Private Pilots", "Total_2019_Commercial_Pilot_Cert": "2019 Commercial Pilots", 
     "Total_2019_Airline_Transport_Pilot_Cert": "2019 Airline Transport Pilots", "Total_2019_Flight_Instructor_Cert": "2019 Flight Instructors",
     "2019_Male_Pilots": "2019 Male Pilots", "2019_Male_Student_Pilot_Cert": "2019 Male Student Pilots", "2019_Male_Private_Pilot_Cert": "2019 Male Private Pilots", "2019_Male_Commercial_Pilot_Cert": "2019 Male Commercial Pilots", 
-    "2019_Male_Airline_Transport_Pilots": "2019 Male Airline Transport Pilots", "2019_Male_Flight_Instructors": "2019 Male Flight Instructors", "2019_Women_Total_Pilots": "2019 Women Pilots", "2019_Women_Student_Pilot": "2019 Women Student Pilots",
+    "2019_Male_Airline_Transport_Pilot_Cert": "2019 Male Airline Transport Pilots", "2019_Male_Flight_Instructor_Cert": "2019 Male Flight Instructors", "2019_Women_Total_Pilots": "2019 Women Pilots", "2019_Women_Student_Pilot": "2019 Women Student Pilots",
     "2019_Women_Private_Pilot": "2019 Women Private Pilots", "2019_Women_Commercial_Pilot": "2019 Women Commercial Pilots", "2019_Women_Airline_Transport_Pilot": "2019 Women Airline Transport Pilots", "2019_Women_Flight_Instructor": "2019 Women Flight Instructors",
 
     "Total_2018_Pilots": "2018 Total Pilots", "Total_2018_Student_Pilot_Cert": "2018 Student Pilots", 
     "Total_2018_Private_Pilot_Cert": "2018 Private Pilots", "Total_2018_Commercial_Pilot_Cert": "2018 Commercial Pilots", 
     "Total_2018_Airline_Transport_Pilot_Cert": "2018 Airline Transport Pilots", "Total_2018_Flight_Instructor_Cert": "2018 Flight Instructors",
     "2018_Male_Pilots": "2018 Male Pilots", "2018_Male_Student_Pilot_Cert": "2018 Male Student Pilots", "2018_Male_Private_Pilot_Cert": "2018 Male Private Pilots", "2018_Male_Commercial_Pilot_Cert": "2018 Male Commercial Pilots", 
-    "2018_Male_Airline_Transport_Pilots": "2018 Male Airline Transport Pilots", "2018_Male_Flight_Instructors": "2018 Male Flight Instructors", "2018_Women_Total_Pilots": "2018 Women Pilots", "2018_Women_Student_Pilot": "2018 Women Student Pilots",
+    "2018_Male_Airline_Transport_Pilot_Cert": "2018 Male Airline Transport Pilots", "2018_Male_Flight_Instructor_Cert": "2018 Male Flight Instructors", "2018_Women_Total_Pilots": "2018 Women Pilots", "2018_Women_Student_Pilot": "2018 Women Student Pilots",
     "2018_Women_Private_Pilot": "2018 Women Private Pilots", "2018_Women_Commercial_Pilot": "2018 Women Commercial Pilots", "2018_Women_Airline_Transport_Pilot": "2018 Women Airline Transport Pilots", "2018_Women_Flight_Instructor": "2018 Women Flight Instructors"
  };     
-
 
     //chart frame dimensions
     var chartWidth = window.innerWidth * 0.96,
@@ -71,7 +73,7 @@
         .domain([0, 1000000]); 
 
 
-
+    //runs setMap function on window load
     window.onload = setMap();
 
 
@@ -118,7 +120,7 @@
         //function to call back data and load topojson files and graticules
         function callback(data) {
             var pilots = data[0],
-                country = data[1];
+                country = data[1],
                 states = data[2];
 
                 
@@ -135,7 +137,7 @@
             setEnumerationUnits(joined_statesFeatures, map, path, colorScale);
 
             //add coordinated visualization to the map
-
+            setChart(pilots, colorScale);
 
             //adds dropdown
             createDropdown(pilots);
@@ -143,35 +145,132 @@
             //bubblechart
             bubbleChart(pilots, colorScale);
            
+           
         };
     }; //end of setMap()
         
 
-    
 
+    //function to create coordinated bar chart
+    function setChart(pilots, colorScale){
+
+        // Compute the maximum value in the dataset and cap it (chatGPT generated)
+        var maxValue = d3.max(pilots, function(d) {
+            return +d[expressed];
+        });
+        var padding = maxValue * 0.1;
+        var cappedMaxValue = Math.min(maxValue + padding,1000000);
+
+        //create a second svg element to hold the bar chart
+        var chart = d3.select(".chart-container")
+            .append("svg")
+            .attr("width", chartWidth)
+            .attr("height", chartHeight)
+            .attr("class", "chart");
+
+        //create a rectangle for chart background fill
+        var chartBackground = chart.append("rect")
+            .attr("class", "chartBackground")
+            .attr("width", chartInnerWidth)
+            .attr("height", chartInnerHeight)
+            .attr("transform", translate);
+        
+        //set yScale for chart (chatGPT generated)
+        var yScale = d3.scaleLinear()
+            .range([chartInnerHeight, 0])
+            .domain([0, cappedMaxValue]);
+
+        //set bars for each state
+        var bars = chart.selectAll(".bar")
+            .data(pilots)
+            .enter()
+            .append("rect")
+            .sort(function(a, b){
+                return b[expressed]-a[expressed]
+            })
+            .attr("class", function(d){
+                return "bar " + d.states;
+            })
+            .attr("width", chartInnerWidth / pilots.length - 1)
+            .on("mouseover", function(event, d){
+                highlight(d);
+            }) 
+            .on("mouseout", function(event, d){
+                dehighlight(d);
+            })
+            .on("mousemove", moveLabel)
+            .attr("x", function(d, i){
+                return i * (chartInnerWidth / pilots.length) + leftPadding;
+            })
+            //chatGPT generated
+            .attr("height", function(d) {
+                return chartInnerHeight - yScale(parseFloat(d[expressed]));
+            })
+            //student original project
+            .attr("y", function(d, i){
+                return yScale(parseFloat(d[expressed])) + topBottomPadding;
+            })
+            .style("fill", function(d){
+                return colorScale(d[expressed]);
+            });
+
+        //add style descriptor to each rect
+        var desc = bars.append("desc")
+            .text('{"stroke": "none", "stroke-width": "0px"}')
+
+        //create a text element for the chart title
+        var chartTitle = chart.append("text")
+            .attr("x", 75)
+            .attr("y", 40)
+            .attr("class", "chartTitle")
+            .attr("fill", "white")
+            .text("Active Pilots by State");
+
+        //create vertical axis generator
+        var yAxis = d3.axisLeft()
+            .scale(yScale);
+
+        //place axis
+        var axis = chart.append("g")
+            .attr("class", "axis")
+            .attr("transform", translate)
+            .call(yAxis);
+
+        //create frame for chart border
+        var chartFrame = chart.append("rect")
+            .attr("class", "chartFrame")
+            .attr("width", chartInnerWidth)
+            .attr("height", chartInnerHeight)
+            .attr("transform", translate);
+
+        //set bar positions, heights, and colors
+        updateChart(bars, pilots.length, colorScale, cappedMaxValue);
+    };
+        
     // Joins the pilots CSV and the US_States_04 TopoJSON
     function joinData(statesFeature, pilots) {
         // Loop through CSV to assign each set of CSV attribute values to TopoJSON state
         pilots.forEach(function(csvState) {
-            var csvKey = csvState.STUSPS; // The CSV primary key
+            var csvKey = csvState.STUSPS; 
 
             // Loop through TopoJSON states to find the correct region
             statesFeature.forEach(function(topojsonFeature) {
-                var topojsonProps = topojsonFeature.properties; // The current region TopoJSON properties
-                var topojsonKey = topojsonProps.STUSPS; // The TopoJSON primary key
+                var topojsonProps = topojsonFeature.properties; 
+                var topojsonKey = topojsonProps.STUSPS; 
 
                 // Where primary keys match, transfer CSV data to TopoJSON properties object
                 if (topojsonKey === csvKey) {
                     // Assign all attributes and values
                     attrArray.forEach(function(attr) {
-                        var val = parseFloat(csvState[attr]); // Get CSV attribute value
-                        topojsonProps[attr] = val; // Assign attribute and value to TopoJSON properties
+                        var val = parseFloat(csvState[attr]); 
+                        topojsonProps[attr] = val; 
                     });
                 }
             });
         });
 
-        return statesFeature; // Return the updated features
+        //resturns updated features
+        return statesFeature;
     }
 
     //sets enumeration units on the map and colors them appropriately
@@ -194,6 +293,7 @@
                     return "#ccc";           
                 }
             })
+            //applies mouseover functions to highlight and dehighlight, as well as move label
             .on("mouseover", function(event, d){
                 highlight(d.properties);
             })
@@ -243,6 +343,7 @@
         //assign array of last 4 cluster minimums as domain
         colorScale.domain(domainArray);
 
+        //returns colorScale
         return colorScale;
     };
 
@@ -256,6 +357,7 @@
                 changeAttribute(this.value, pilots)
             });
         
+
         //add initial option
         var titleOption = dropdown.append("option")
             .attr("class", "titleOption")
@@ -270,10 +372,13 @@
             .attr("value", function(d){ return d })
             .text(function(d){ return d })
             .text(function(d){ return attrFriendlyNames[d] });
-        };
+
+        
+    };
 
     //dropdown change event handler
     function changeAttribute(attribute, pilots) {
+
         //change the expressed attribute
         expressed = attribute;
 
@@ -286,6 +391,9 @@
 
         //recreate the color scale
         var colorScale = makeColorScale(pilots);
+
+
+
 
         //recolor enumeration units
         var states = d3.selectAll(".states")
@@ -305,7 +413,7 @@
             .sort(function(a, b){
                 return b[expressed] - a[expressed];
             })
-            .transition() //add animation
+            .transition()
             .delay(function(d, i){
                 return i * 20
             })
@@ -313,6 +421,22 @@
             
 
         updateChart(bars, pilots.length, colorScale, cappedMaxValue);
+    
+        // Update Y-axis with capped max value (chatGPT generated to end of change Attribute())
+        var newYScale = d3.scaleLinear()
+        .range([chartInnerHeight, 0])
+        .domain([0, cappedMaxValue]);
+
+        var yAxis = d3.axisLeft()
+            .scale(newYScale);
+
+        d3.select(".chart").select(".axis")
+            .transition()
+            .duration(1000)
+            .call(yAxis);
+
+        // Update the Y-axis scale
+        yScale = newYScale;
 
         // Recolor the map based on the new attribute
         d3.selectAll(".states")
@@ -327,19 +451,49 @@
                 }
             });
 
-        // Update the bubble chart with the new attribute
-        updateBubbleChart(pilots);
-    
-
-
     }; //end of changeAttribute()
 
-   
+
+    //function to position, size, and color bars in chart
+    function updateChart(bars, n, colorScale, cappedMaxValue){
+
+        // Update Y-axis scale (chatGPT generated)
+        yScale = d3.scaleLinear()
+            .range([chartInnerHeight, 0])
+            .domain([0, cappedMaxValue]);
+
+        //position bars
+        bars.attr("x", function(d, i){
+                return i * (chartInnerWidth / n) + leftPadding;
+            })
+            //Size/resize bars (chatGPT generated)
+            .attr("height", function(d) {
+                return chartInnerHeight - yScale(parseFloat(d[expressed]));
+            })
+            //student original project
+            .attr("y", function(d) {
+                return yScale(parseFloat(d[expressed])) + topBottomPadding;
+            })
+            //color/recolor bars
+            .style("fill", function(d){            
+                var value = d[expressed];            
+                if(value) {                
+                    return colorScale(value);            
+                } else {                
+                    return "#ccc";            
+                }    
+        });
+        //add text to chart title
+        var chartTitle = d3.select(".chartTitle")
+            .text("Active Pilots by State");
+
+    };//end of updateChart
+
 
     //function to highlight enumeration units and bars
     function highlight(props){
         //change stroke
-        var affected = props.state || props.STUSPS;
+        var affected = props.states || props.STUSPS;
         var selected = d3.selectAll("." + affected)
             .style("stroke", "blue")
             .style("stroke-width", "2");
@@ -349,7 +503,7 @@
 
     //function to reset the element style on mouseout
     function dehighlight(props){
-        var affected = props.state || props.STUSPS;
+        var affected = props.states || props.STUSPS;
         var selected = d3.selectAll("." + affected)
             .style("stroke", function(){
                 return getStyle(this, "stroke")
@@ -367,10 +521,11 @@
 
             return styleObject[styleName];
         };
-        //below Example 2.4 line 21...remove info label
+        //remove infolabel
         d3.select(".infolabel")
             .remove();
     };
+
 
     //function to create dynamic label
     function setLabel(props){
@@ -388,10 +543,11 @@
         var stateName = infolabel.append("div")
             .attr("class", "labelname")
             .html(props.name)
-            .html(props.state)
+            .html(props.STUSPS)
     };
 
-    //Example 2.8 line 1...function to move info label with mouse
+
+    //function to move info label with mouse
     function moveLabel(event){
         //get width of label
         var labelWidth = d3.select(".infolabel")
@@ -401,7 +557,7 @@
 
         //use coordinates of mousemove event to set label coordinates
         var x1 = event.clientX + 10,
-            y1 = event.clientY - 75,
+            y1 = event.clientY + 100,
             x2 = event.clientX - labelWidth - 10,
             y2 = event.clientY + 25;
 
@@ -417,17 +573,23 @@
 
 
 
-
+    //bubbleChart and updateBubbleChart is a collaboration between student and chatGPT. The majority of this
+    //is chatGPT generated with student inputs where the mistakes were made.
     function bubbleChart(pilots, colorScale) {
+
+
         // Set the dimensions and margins of the graph
-        var chartWidth = 800;
+        var chartWidth = 1700;
         var chartHeight = 600;
+
     
         // Append the svg object to the bubble-container class
-        var svg = d3.select(".bubble-container")
-            .append("svg")
-            .attr("width", chartWidth)
-            .attr("height", chartHeight);
+        if (!svg) {
+            svg = d3.select(".bubble-container")
+                .append("svg")
+                .attr("width", chartWidth)
+                .attr("height", chartHeight);
+        }
     
         // Bubble packing layout
         var bubble = d3.pack()
@@ -463,40 +625,7 @@
             .text(function(d) { 
                 return d.data.STUSPS ? d.data.STUSPS : '';  // Accessing the data safely
             });
-    
-        // Function to update the bubble chart when the attribute changes
-        function updateBubbleChart() {
-            // Update the hierarchy with new values
-            root.sum(function(d) { return +d[expressed]; });
-    
-            // Recompute the bubble layout
-            bubble(root);
-    
-            // Update the nodes
-            var nodes = svg.selectAll(".node")
-                .data(root.leaves());
-    
-            // Transition to new positions and sizes
-            nodes.transition().duration(1000)
-                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-    
-            nodes.select("circle")
-                .transition().duration(1000)
-                .attr("r", function(d) { return d.r; })
-                .style("fill", function(d) { return colorScale(d.data[expressed]); });
-    
-            nodes.select("text")
-                .text(function(d) { return d.data.STUSPS ? d.data.STUSPS : ''; });
-        }
-    
-        // Update the bubble chart whenever an attribute is changed
-        d3.select("#attributeDropdown").on("change", function() {
-            expressed = d3.select(this).property("value");  // Update the expressed attribute
-            updateBubbleChart();  // Call the update function
-        });
     }
-
-
 
 
 })(); //last line

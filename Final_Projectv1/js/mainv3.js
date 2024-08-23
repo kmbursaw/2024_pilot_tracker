@@ -13,7 +13,6 @@
 
     var svg, bubble, root;
 
-
     var attrFriendlyNames = { "Total_2023_Pilots": "2023 Total Pilots", "Total_2023_Student_Pilot_Cert": "2023 Student Pilots", 
     "Total_2023_Private_Pilot_Cert": "2023 Private Pilots", "Total_2023_Commercial_Pilot_Cert": "2023 Commercial Pilots", 
     "Total_2023_Airline_Transport_Pilot_Cert": "2023 Airline Transport Pilots", "Total_2023_Flight_Instructor_Cert": "2023 Flight Instructors",
@@ -56,7 +55,6 @@
     "2018_Male_Airline_Transport_Pilot_Cert": "2018 Male Airline Transport Pilots", "2018_Male_Flight_Instructor_Cert": "2018 Male Flight Instructors", "2018_Women_Total_Pilots": "2018 Women Pilots", "2018_Women_Student_Pilot": "2018 Women Student Pilots",
     "2018_Women_Private_Pilot": "2018 Women Private Pilots", "2018_Women_Commercial_Pilot": "2018 Women Commercial Pilots", "2018_Women_Airline_Transport_Pilot": "2018 Women Airline Transport Pilots", "2018_Women_Flight_Instructor": "2018 Women Flight Instructors"
  };     
-
 
     //chart frame dimensions
     var chartWidth = window.innerWidth * 0.96,
@@ -370,12 +368,19 @@
             .attr("value", function(d){ return d })
             .text(function(d){ return d })
             .text(function(d){ return attrFriendlyNames[d] });
-        };
+
+        
+    };
 
     //dropdown change event handler
     function changeAttribute(attribute, pilots) {
+
+        console.log("changeAttribute called with:", attribute);
+
         //change the expressed attribute
         expressed = attribute;
+
+        console.log("Attribute changed to:", expressed);
 
         // Compute the maximum value in the dataset and cap it (chatGPT generated)
         var maxValue = d3.max(pilots, function(d) {
@@ -386,6 +391,9 @@
 
         //recreate the color scale
         var colorScale = makeColorScale(pilots);
+
+
+
 
         //recolor enumeration units
         var states = d3.selectAll(".states")
@@ -569,6 +577,8 @@
     //is chatGPT generated with student inputs where the mistakes were made.
     function bubbleChart(pilots, colorScale) {
 
+        
+
         console.log("bubbleChart() called");
 
         // Set the dimensions and margins of the graph
@@ -619,14 +629,20 @@
                 return d.data.STUSPS ? d.data.STUSPS : '';  // Accessing the data safely
             });
 
-        console.log("bubbleChar completed and variables initialized.")
 
-        updateBubbleChart(pilots, colorScale);
+        console.log("bubbleChar completed and variables initialized.")
+        //console.log("Current state - svg:", svg, "root:", root, "bubble:", bubble);
+        updateBubbleChart(pilots, colorScale, root, bubble)
 
     }
 
+    /*
     // Function to update the bubble chart when the attribute changes
-    function updateBubbleChart(pilots, colorScale) {
+    function updateBubbleChart(pilots, colorScale, root, bubble) {
+
+        expressed = attribute;
+        console.log("updateBubbleChart() called with attribute:", expressed);
+
 
         console.log("updateBubbleChart() called")
 
@@ -641,7 +657,7 @@
 
         // Update the hierarchy with new values
         root.sum(function(d) { 
-            //console.log("Value for node:", d[expressed]);  // Log each node's new value
+            console.log("Value for node:", d[expressed]);  // Log each node's new value
 
             return +d[expressed]; 
         });
@@ -695,20 +711,35 @@
             .text(function(d) { return d.data.STUSPS ? d.data.STUSPS : ''; });
         
  
-    }
-
-
+    };
 
     // Update the bubble chart whenever an attribute is changed
-    d3.select("#attribute-dropdown").on("change", function() {
+    d3.select(".attribute-dropdown").on("change", function() {
 
         console.log("Dropdown change detected.");  // Check if the event is firing
 
-        expressed = d3.select(this).property("value");  // Update the expressed attribute
+        var newAttribute = d3.select(this).property("value");  // Update the expressed attribute
 
-        console.log("New expressed value:", expressed);  // Ensure expressed is updated
+        console.log("New expressed value:", newAttribute);  // Ensure expressed is updated
 
-        updateBubbleChart(pilots, colorScale);  // Call the update function
+        updateBubbleChart(newAttribute, pilots, colorScale, root, bubble);  // Call the update function
+});
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var dropdown = document.getElementById("attribute-dropdown");
+    
+        if (dropdown) {
+            console.log("Dropdown exists and is ready.");
+    
+            dropdown.addEventListener("change", function() {
+                console.log("Native event listener detected change.");
+                console.log("New value:", dropdown.value);
+            });
+        } else {
+            console.error("Dropdown element not found.");
+        }
     });
+    */
 
 })(); //last line
