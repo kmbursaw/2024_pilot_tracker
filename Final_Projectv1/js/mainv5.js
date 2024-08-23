@@ -10,10 +10,10 @@
                 "Total_2018_Pilots", "Total_2018_Student_Pilot_Cert", "Total_2018_Private_Pilot_Cert", "Total_2018_Commercial_Pilot_Cert", "Total_2018_Airline_Transport_Pilot_Cert", "Total_2018_Flight_Instructor_Cert", "2018_Male_Pilots", "2018_Male_Student_Pilot_Cert", "2018_Male_Private_Pilot_Cert", "2018_Male_Commercial_Pilot_Cert", "2018_Male_Airline_Transport_Pilot_Cert", "2018_Male_Flight_Instructor_Cert", "2018_Women_Total_Pilots", "2018_Women_Student_Pilot", "2018_Women_Private_Pilot", "2018_Women_Commercial_Pilot", "2018_Women_Airline_Transport_Pilot", "2018_Women_Flight_Instructor",]; //list of attributes
 
     var expressed = attrArray[0]; //initial attribute
+    var colorScale; //CHANGED: Declared colorScale as a global variable
 
-    var colorScale; //make global variable
+    var svg, bubble, root; // Global variables for bubble chart components
 
-    var svg, bubble, root;
 
     var attrFriendlyNames = { "Total_2023_Pilots": "2023 Total Pilots", "Total_2023_Student_Pilot_Cert": "2023 Student Pilots", 
     "Total_2023_Private_Pilot_Cert": "2023 Private Pilots", "Total_2023_Commercial_Pilot_Cert": "2023 Commercial Pilots", 
@@ -57,6 +57,7 @@
     "2018_Male_Airline_Transport_Pilot_Cert": "2018 Male Airline Transport Pilots", "2018_Male_Flight_Instructor_Cert": "2018 Male Flight Instructors", "2018_Women_Total_Pilots": "2018 Women Pilots", "2018_Women_Student_Pilot": "2018 Women Student Pilots",
     "2018_Women_Private_Pilot": "2018 Women Private Pilots", "2018_Women_Commercial_Pilot": "2018 Women Commercial Pilots", "2018_Women_Airline_Transport_Pilot": "2018 Women Airline Transport Pilots", "2018_Women_Flight_Instructor": "2018 Women Flight Instructors"
  };     
+
 
     //chart frame dimensions
     var chartWidth = window.innerWidth * 0.96,
@@ -132,8 +133,7 @@
             var joined_statesFeatures = joinData(statesFeature, pilots);
 
             //create the color scale
-            var colorScale = makeColorScale(pilots);
-
+            colorScale = makeColorScale(pilots); //CHANGED: Assign the colorScale variable in the callback function
             //add enumeration units to the map
             setEnumerationUnits(joined_statesFeatures, map, path, colorScale);
 
@@ -370,19 +370,12 @@
             .attr("value", function(d){ return d })
             .text(function(d){ return d })
             .text(function(d){ return attrFriendlyNames[d] });
-
-        
-    };
+        };
 
     //dropdown change event handler
     function changeAttribute(attribute, pilots) {
-
-        console.log("changeAttribute called with:", attribute);
-
         //change the expressed attribute
         expressed = attribute;
-
-        console.log("Attribute changed to:", expressed);
 
         // Compute the maximum value in the dataset and cap it (chatGPT generated)
         var maxValue = d3.max(pilots, function(d) {
@@ -392,7 +385,7 @@
         var cappedMaxValue = Math.min(maxValue + padding, 1000000);
 
         //recreate the color scale
-        var colorScale = makeColorScale(pilots);
+        colorScale = makeColorScale(pilots); //CHANGED: Re-assign the colorScale variable in the changeAttribute function
 
         //recolor enumeration units
         var states = d3.selectAll(".states")
@@ -452,13 +445,11 @@
 
         // Call updateBubbleChart to update the bubble chart with the new attribute
         updateBubbleChart(); //CHANGED: Call updateBubbleChart in changeAttribute to trigger the update
-
     }; //end of changeAttribute()
 
 
     //function to position, size, and color bars in chart
     function updateChart(bars, n, colorScale, cappedMaxValue){
-
         // Update Y-axis scale (chatGPT generated)
         yScale = d3.scaleLinear()
             .range([chartInnerHeight, 0])
@@ -549,198 +540,140 @@
     };
 
 
-    //Example 2.8 line 1...function to move info label with mouse
-    function moveLabel(event){
-        //get width of label
-        var labelWidth = d3.select(".infolabel")
-            .node()
-            .getBoundingClientRect()
-            .width;
+  //function to move info label with mouse
+  function moveLabel(event){
+    //get width of label
+    var labelWidth = d3.select(".infolabel")
+        .node()
+        .getBoundingClientRect()
+        .width;
 
-        //use coordinates of mousemove event to set label coordinates
-        var x1 = event.clientX + 10,
-            y1 = event.clientY + 100,
-            x2 = event.clientX - labelWidth - 10,
-            y2 = event.clientY + 25;
+    //use coordinates of mousemove event to set label coordinates
+    var x1 = event.clientX + 10,
+        y1 = event.clientY + 100,
+        x2 = event.clientX - labelWidth - 10,
+        y2 = event.clientY + 25;
 
-        //horizontal label coordinate, testing for overflow
-        var x = event.clientX > window.innerWidth - labelWidth - 20 ? x2 : x1; 
-        //vertical label coordinate, testing for overflow
-        var y = event.clientY < 75 ? y2 : y1; 
+    //horizontal label coordinate, testing for overflow
+    var x = event.clientX > window.innerWidth - labelWidth - 20 ? x2 : x1; 
+    //vertical label coordinate, testing for overflow
+    var y = event.clientY < 75 ? y2 : y1; 
 
-        d3.select(".infolabel")
-            .style("left", x + "px")
-            .style("top", y + "px");
-    };
-
-
-
-    //bubbleChart and updateBubbleChart is a collaboration between student and chatGPT. The majority of this
-    //is chatGPT generated with student inputs where the mistakes were made.
-    function bubbleChart(pilots, colorScale) {
-
-        // Set the dimensions and margins of the graph
-        var chartWidth = 1700;
-        var chartHeight = 600;
-
-        //CHANGED: Assign the colorScale variable in the bubbleChart function
-        colorScale = makeColorScale(pilots);
-
-    
-        // Append the svg object to the bubble-container class
-        if (!svg) {
-            svg = d3.select(".bubble-container")
-                .append("svg")
-                .attr("width", chartWidth)
-                .attr("height", chartHeight);
-        }
-    
-        // Bubble packing layout
-        var bubble = d3.pack()
-            .size([chartWidth, chartHeight])
-            .padding(1.5);
-    
-        // Prepare the root hierarchy
-        var root = d3.hierarchy({ children: pilots })
-            .sum(function(d) { return +d[expressed]; });  // Use the expressed attribute for value calculation
-    
-        // Compute the positions of the bubbles
-        bubble(root);
-    
-        // Create nodes
-        var node = svg.selectAll(".node")
-            .data(root.leaves())
-            .enter().append("g")
-            .attr("class", "node")
-            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-    
-        // Append circles to nodes
-        node.append("circle")
-            .attr("r", function(d) { return d.r; })
-            .style("fill", function(d) { return colorScale(d.data[expressed]); });
-    
-        // Append text labels inside the bubbles
-        node.append("text")
-            .attr("dy", ".3em")
-            .style("text-anchor", "middle")
-            .style("font-size", function(d) {
-                return Math.max(8, d.r / 3) + "px";  // Scale font size with radius, set a minimum size
-            })
-            .text(function(d) { 
-                return d.data.STUSPS ? d.data.STUSPS : '';  // Accessing the data safely
-            });
+    d3.select(".infolabel")
+        .style("left", x + "px")
+        .style("top", y + "px");
+};
 
 
-        console.log("bubbleChar completed and variables initialized.")
-        //console.log("Current state - svg:", svg, "root:", root, "bubble:", bubble);
-        updateBubbleChart(pilots, colorScale, root, bubble)
 
-    }
+//bubbleChart and updateBubbleChart is a collaboration between student and chatGPT. The majority of this
+//is chatGPT generated with student inputs where the mistakes were made, along with student input of own variables.
+function bubbleChart(pilots, colorScale) {
+    // Set the dimensions and margins of the graph
+    var chartWidth = 1700;
+    var chartHeight = 600;
 
-    /*
-    // Function to update the bubble chart when the attribute changes
-    function updateBubbleChart(pilots, colorScale, root, bubble) {
+    //CHANGED: Assign the colorScale variable in the bubbleChart function
+    colorScale = makeColorScale(pilots); 
 
-        expressed = attribute;
-        console.log("updateBubbleChart() called with attribute:", expressed);
+    // Append the svg object to the bubble-container class
+    svg = d3.select(".bubble-container") //CHANGED: Make sure svg is a global variable
+        .append("svg")
+        .attr("width", chartWidth)
+        .attr("height", chartHeight);
 
+    // Bubble packing layout
+    bubble = d3.pack() //CHANGED: Make sure bubble is a global variable
+        .size([chartWidth, chartHeight])
+        .padding(1.5);
 
-        console.log("updateBubbleChart() called")
+    // Prepare the root hierarchy
+    root = d3.hierarchy({ children: pilots }) //CHANGED: Make sure root is a global variable
+        .sum(function(d) { return +d[expressed]; });  // Use the expressed attribute for value calculation
 
-        // Ensure that root and bubble have been initialized
-        if (!root || !bubble) {
-            console.error("Bubble chart has not been initialized. Please call bubbleChart() first.");
-            console.log("Current state - svg:", svg, "root:", root, "bubble:", bubble);
-            return;
-        }
+    // Compute the positions of the bubbles
+    bubble(root);
 
-        console.log("Updating bubble chart with attribute:", expressed); // Ensure this is logged
+    // Create nodes
+    var node = svg.selectAll(".node")
+        .data(root.leaves())
+        .enter().append("g")
+        .attr("class", "node")
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-        // Update the hierarchy with new values
-        root.sum(function(d) { 
-            console.log("Value for node:", d[expressed]);  // Log each node's new value
+    // Append circles to nodes
+    node.append("circle")
+        .attr("r", function(d) { return d.r; })
+        .style("fill", function(d) { return colorScale(d.data[expressed]); });
 
-            return +d[expressed]; 
+    // Append text labels inside the bubbles
+    node.append("text")
+        .attr("dy", ".3em")
+        .style("text-anchor", "middle")
+        .style("font-size", function(d) {
+            return Math.max(8, d.r / 3) + "px";  // Scale font size with radius, set a minimum size
+        })
+        .text(function(d) { 
+            return d.data.STUSPS ? d.data.STUSPS : '';  // Accessing the data safely
         });
 
-        console.log("Updated root hierarchy:", root.leaves());  // Log updated root hierarchy
+}
 
-        // Recompute the bubble layout
-        bubble(root);
+// Function to update the bubble chart when the attribute changes
+function updateBubbleChart() {
 
-        console.log("After bubble layout computation:", root.leaves());  // Log updated positions
+    // Update the hierarchy with new values
+    root.sum(function(d) { return +d[expressed]; });
 
+    // Recompute the bubble layout
+    bubble(root);
 
-        // Update the nodes
-        var nodes = svg.selectAll(".node")
-            .data(root.leaves(), function(d) { return d.data.id; }); // Ensure unique key for data join
+    // Update the nodes
+    var nodes = svg.selectAll(".node")
+        .data(root.leaves(), function(d) { return d.data.id; }); // Ensure unique key for data join
 
-          // Remove exiting nodes
-        nodes.exit().remove();
+      // Remove exiting nodes
+    nodes.exit().remove();
 
-        // Enter new nodes
-        var enterNodes = nodes.enter().append("g")
-            .attr("class", "node");
+    // Enter new nodes
+    var enterNodes = nodes.enter().append("g")
+        .attr("class", "node");
 
-        // Append circles to new nodes
-        enterNodes.append("circle")
-            .attr("r", function(d) { return d.r; })
-            .style("fill", function(d) { return colorScale(d.data[expressed]); });
+    // Append circles to new nodes
+    enterNodes.append("circle")
+        .attr("r", function(d) { return d.r; })
+        .style("fill", function(d) { return colorScale(d.data[expressed]); });
 
-        // Append text labels to new nodes
-        enterNodes.append("text")
-            .attr("dy", ".3em")
-            .style("text-anchor", "middle")
-            .style("font-size", function(d) {
-                return Math.max(8, d.r / 3) + "px";  // Scale font size with radius, set a minimum size
-            })
-            .text(function(d) { 
-                return d.data.STUSPS ? d.data.STUSPS : '';  // Accessing the data safely
-            });
+    // Append text labels to new nodes
+    enterNodes.append("text")
+        .attr("dy", ".3em")
+        .style("text-anchor", "middle")
+        .style("font-size", function(d) {
+            return Math.max(8, d.r / 3) + "px";  // Scale font size with radius, set a minimum size
+        })
+        .text(function(d) { 
+            return d.data.STUSPS ? d.data.STUSPS : '';  // Accessing the data safely
+        });
 
-        // Update existing nodes
-        nodes.merge(enterNodes) // Merge enter and update selections
-            .transition().duration(500)
-            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    // Update existing nodes
+    nodes.merge(enterNodes) // Merge enter and update selections
+        .transition().duration(500)
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-        nodes.merge(enterNodes).select("circle")
-            .transition().duration(500)
-            .attr("r", function(d) { return d.r; })
-            .style("fill", function(d) { return colorScale(d.data[expressed]); });
+    nodes.merge(enterNodes).select("circle")
+        .transition().duration(500)
+        .attr("r", function(d) { return d.r; })
+        .style("fill", function(d) { return colorScale(d.data[expressed]); });
 
-        nodes.merge(enterNodes).select("text")
-            .text(function(d) { return d.data.STUSPS ? d.data.STUSPS : ''; });
-        
- 
-    };
+    nodes.merge(enterNodes).select("text")
+        .text(function(d) { return d.data.STUSPS ? d.data.STUSPS : ''; });
+    
+}
 
-    // Update the bubble chart whenever an attribute is changed
-    d3.select(".attribute-dropdown").on("change", function() {
-
-        console.log("Dropdown change detected.");  // Check if the event is firing
-
-        var newAttribute = d3.select(this).property("value");  // Update the expressed attribute
-
-        console.log("New expressed value:", newAttribute);  // Ensure expressed is updated
-
-        updateBubbleChart(newAttribute, pilots, colorScale, root, bubble);  // Call the update function
+// Update the bubble chart whenever an attribute is changed
+d3.select("#attribute-dropdown").on("change", function() {
+    expressed = d3.select(this).property("value");
+    updateBubbleChart();
 });
-
-
-    document.addEventListener("DOMContentLoaded", function() {
-        var dropdown = document.getElementById("attribute-dropdown");
-    
-        if (dropdown) {
-            console.log("Dropdown exists and is ready.");
-    
-            dropdown.addEventListener("change", function() {
-                console.log("Native event listener detected change.");
-                console.log("New value:", dropdown.value);
-            });
-        } else {
-            console.error("Dropdown element not found.");
-        }
-    });
-    */
 
 })(); //last line
