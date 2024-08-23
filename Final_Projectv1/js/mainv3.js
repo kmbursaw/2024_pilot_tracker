@@ -11,7 +11,8 @@
 
     var expressed = attrArray[0]; //initial attribute
 
-    var root, svg, bubble;
+    var svg, bubble, root;
+
 
     var attrFriendlyNames = { "Total_2023_Pilots": "2023 Total Pilots", "Total_2023_Student_Pilot_Cert": "2023 Student Pilots", 
     "Total_2023_Private_Pilot_Cert": "2023 Private Pilots", "Total_2023_Commercial_Pilot_Cert": "2023 Commercial Pilots", 
@@ -567,16 +568,21 @@
     //bubbleChart and updateBubbleChart is a collaboration between student and chatGPT. The majority of this
     //is chatGPT generated with student inputs where the mistakes were made.
     function bubbleChart(pilots, colorScale) {
+
+        console.log("bubbleChart() called");
+
         // Set the dimensions and margins of the graph
-        var chartWidth = 800;
+        var chartWidth = 1700;
         var chartHeight = 600;
 
     
         // Append the svg object to the bubble-container class
-        var svg = d3.select(".bubble-container")
-            .append("svg")
-            .attr("width", chartWidth)
-            .attr("height", chartHeight);
+        if (!svg) {
+            svg = d3.select(".bubble-container")
+                .append("svg")
+                .attr("width", chartWidth)
+                .attr("height", chartHeight);
+        }
     
         // Bubble packing layout
         var bubble = d3.pack()
@@ -613,20 +619,40 @@
                 return d.data.STUSPS ? d.data.STUSPS : '';  // Accessing the data safely
             });
 
+        console.log("bubbleChar completed and variables initialized.")
+
+        updateBubbleChart(pilots, colorScale);
+
     }
 
     // Function to update the bubble chart when the attribute changes
-    function updateBubbleChart() {
+    function updateBubbleChart(pilots, colorScale) {
+
+        console.log("updateBubbleChart() called")
+
+        // Ensure that root and bubble have been initialized
+        if (!root || !bubble) {
+            console.error("Bubble chart has not been initialized. Please call bubbleChart() first.");
+            console.log("Current state - svg:", svg, "root:", root, "bubble:", bubble);
+            return;
+        }
 
         console.log("Updating bubble chart with attribute:", expressed); // Ensure this is logged
 
         // Update the hierarchy with new values
-        root.sum(function(d) { return +d[expressed]; });
+        root.sum(function(d) { 
+            //console.log("Value for node:", d[expressed]);  // Log each node's new value
 
-        console.log("Updated root hierarchy:", root);
+            return +d[expressed]; 
+        });
+
+        console.log("Updated root hierarchy:", root.leaves());  // Log updated root hierarchy
 
         // Recompute the bubble layout
         bubble(root);
+
+        console.log("After bubble layout computation:", root.leaves());  // Log updated positions
+
 
         // Update the nodes
         var nodes = svg.selectAll(".node")
@@ -668,12 +694,21 @@
         nodes.merge(enterNodes).select("text")
             .text(function(d) { return d.data.STUSPS ? d.data.STUSPS : ''; });
         
+ 
     }
 
+
+
     // Update the bubble chart whenever an attribute is changed
-    d3.select("#attributeDropdown").on("change", function() {
+    d3.select("#attribute-dropdown").on("change", function() {
+
+        console.log("Dropdown change detected.");  // Check if the event is firing
+
         expressed = d3.select(this).property("value");  // Update the expressed attribute
-        updateBubbleChart();  // Call the update function
+
+        console.log("New expressed value:", expressed);  // Ensure expressed is updated
+
+        updateBubbleChart(pilots, colorScale);  // Call the update function
     });
 
 })(); //last line
